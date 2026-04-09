@@ -3,21 +3,25 @@
 ## API-Tests
 
 ### GET /api/skills
-- Erwartung: 200, JSON mit skills-Array
-- **Status:** Nicht getestet
+- Erwartung: 200, JSON mit skills-Array aus 4 Quellen
+- **Status: PASS** (2026-04-09, 80 Skills)
 
 ### GET /api/skills/:id/detail
-- Erwartung: 200, JSON mit name, description, content
-- **Status:** Nicht getestet
+- Erwartung: 200, JSON mit name, content, description
+- **Status: PASS** (2026-04-09, discord-nachricht)
 
 ### GET /api/skills/:id/ratings
 - Erwartung: 200, JSON mit verstehe/nutze
-- **Status:** Nicht getestet
+- **Status: PASS** (2026-04-09)
+
+### GET /api/skills/:id/settings
+- Erwartung: 200, JSON (leer oder mit show_in_all)
+- **Status: PASS** (2026-04-09)
 
 ### POST /api/skills/:id/ratings
 - Body: `{"verstehe":5,"nutze":3}`
 - Erwartung: 200
-- **Status:** Nicht getestet
+- **Status:** Nicht getestet (wuerde bestehende Ratings ueberschreiben)
 
 ## UI-Tests (manuell)
 
