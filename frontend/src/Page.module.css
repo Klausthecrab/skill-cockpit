@@ -290,7 +290,7 @@
 }
 
 /* ===== Modal ===== */
-.modalOverlay {
+.overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.5);
@@ -300,7 +300,7 @@
   z-index: 1000;
   padding: var(--spacing-xl);
 }
-.modalContent {
+.modal {
   background: var(--bg-primary);
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-lg);
@@ -311,7 +311,7 @@
   position: relative;
   padding: var(--spacing-xl);
 }
-.modalClose {
+.modalCloseBtn {
   position: absolute;
   top: var(--spacing-md);
   right: var(--spacing-md);
@@ -327,7 +327,7 @@
   justify-content: center;
   border-radius: var(--radius-md);
 }
-.modalClose:hover {
+.modalCloseBtn:hover {
   background: var(--bg-secondary);
   color: var(--text-primary);
 }
