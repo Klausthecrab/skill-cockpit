@@ -426,7 +426,7 @@ function NewBundleModal({ skills, onClose, onCreated }) {
     setSaving(true)
     setError(null)
     try {
-      const res = await fetch('http://localhost:9123/api/bundles', {
+      const res = await fetch('/api/bundles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name.trim(), description: desc.trim(), skills: skillSlugs }),
@@ -520,7 +520,7 @@ function BundlesTab({ skills }) {
     setLoading(true)
     setError(null)
     Promise.all([
-      fetch('http://localhost:9123/api/bundles').then(r => r.json()),
+      fetch('/api/bundles').then(r => r.json()),
     ])
       .then(([bundleData]) => setData(bundleData))
       .catch(e => setError(e.message))
@@ -633,7 +633,7 @@ function ReferencesTab() {
   const load = () => {
     setLoading(true)
     setError(null)
-    fetch('http://localhost:9123/api/references')
+    fetch('/api/references')
       .then(r => r.json())
       .then(d => setData(d))
       .catch(e => setError(e.message))
@@ -689,12 +689,11 @@ function ReferencesTab() {
     const refId = `${ref.skill_id}/${ref.name}`
     setRefreshing(prev => ({ ...prev, [refId]: true }))
     try {
-      const res = await fetch(`http://localhost:9123/api/references/${encodeURIComponent(refId)}/refresh`, { method: 'POST' })
+      const res = await fetch(`/api/references/${encodeURIComponent(refId)}/refresh`, { method: 'POST' })
       const result = await res.json()
       if (!res.ok) {
         alert(`Fehler: ${result.error}`)
       } else {
-        // Reload after a brief delay
         setTimeout(() => load(), 2000)
       }
     } catch (e) {
@@ -721,31 +720,31 @@ function ReferencesTab() {
   return (
     <div>
       {/* Stats overview */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem', marginBottom: '1rem' }}>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{data.total}</div>
-          <div className={styles.statLabel}>References</div>
-          <div className={styles.statSub}>Gesamt</div>
+      <div className={styles.refStatCards}>
+        <div className={styles.refStatCard}>
+          <div className={styles.refStatValue}>{data.total}</div>
+          <div className={styles.refStatLabel}>References</div>
+          <div className={styles.refStatSub}>Gesamt</div>
         </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue} style={{ color: '#22c55e' }}>{byLight.green || 0}</div>
-          <div className={styles.statLabel}>Grün</div>
-          <div className={styles.statSub}>Heute aktualisiert</div>
+        <div className={styles.refStatCard}>
+          <div className={styles.refStatValue} style={{ color: '#22c55e' }}>{byLight.green || 0}</div>
+          <div className={styles.refStatLabel}>Grün</div>
+          <div className={styles.refStatSub}>Heute aktualisiert</div>
         </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue} style={{ color: '#f59e0b' }}>{byLight.yellow || 0}</div>
-          <div className={styles.statLabel}>Gelb</div>
-          <div className={styles.statSub}>1–3 Tage alt</div>
+        <div className={styles.refStatCard}>
+          <div className={styles.refStatValue} style={{ color: '#f59e0b' }}>{byLight.yellow || 0}</div>
+          <div className={styles.refStatLabel}>Gelb</div>
+          <div className={styles.refStatSub}>1–3 Tage alt</div>
         </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue} style={{ color: '#ef4444' }}>{byLight.red || 0}</div>
-          <div className={styles.statLabel}>Rot</div>
-          <div className={styles.statSub}>{'>'}3 Tage alt</div>
+        <div className={styles.refStatCard}>
+          <div className={styles.refStatValue} style={{ color: '#ef4444' }}>{byLight.red || 0}</div>
+          <div className={styles.refStatLabel}>Rot</div>
+          <div className={styles.refStatSub}>{'>'}3 Tage alt</div>
         </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue} style={{ color: data.orphaned_count > 0 ? '#f59e0b' : 'var(--text)' }}>{data.orphaned_count}</div>
-          <div className={styles.statLabel}>Verwaist</div>
-          <div className={styles.statSub}>Kein Cron zugeordnet</div>
+        <div className={styles.refStatCard}>
+          <div className={styles.refStatValue} style={{ color: data.orphaned_count > 0 ? '#f59e0b' : 'var(--text)' }}>{data.orphaned_count}</div>
+          <div className={styles.refStatLabel}>Verwaist</div>
+          <div className={styles.refStatSub}>Kein Cron zugeordnet</div>
         </div>
       </div>
 
@@ -782,9 +781,7 @@ function ReferencesTab() {
       </div>
 
       {/* Results count */}
-      <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginBottom: '0.75rem' }}>
-        {filteredSorted.length} von {data.total} Einträgen
-      </div>
+      <div className={styles.refCount}>{filteredSorted.length} von {data.total} Einträgen</div>
 
       {/* References table */}
       <div className={styles.refTable}>

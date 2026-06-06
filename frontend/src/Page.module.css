@@ -670,6 +670,270 @@
   margin-top: 0.35rem;
 }
 
+/* ===== Missing styles from JSX refs ===== */
+
+/* Header bar */
+.headerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+.headerTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+.headerCount {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+.searchInput {
+  padding: 8px 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-family: inherit;
+  width: 220px;
+  outline: none;
+  transition: border-color 0.12s;
+}
+.searchInput:focus {
+  border-color: var(--color-accent);
+}
+.sortSelect {
+  padding: 8px 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: 3px;
+}
+.tab {
+  flex: 1;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.tab:hover {
+  color: var(--text-primary);
+}
+.tabActive {
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Card internals */
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+.cardName {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cardMetaItem {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  padding: 1px 5px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+.cardCategory {
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-left: auto;
+}
+.cardVersion {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+}
+
+/* Archive section */
+.archiveSection {
+  margin-top: var(--spacing-lg);
+}
+.archiveTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px dashed var(--border-primary);
+}
+
+/* No data */
+.noData {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Detail loading */
+.detailLoading {
+  padding: 48px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* Rank circles */
+.rankGold {
+  background: linear-gradient(135deg, #f5b800, #e09b00);
+  box-shadow: 0 0 8px rgba(245, 184, 0, 0.4);
+}
+.rankSilver {
+  background: linear-gradient(135deg, #94a3b8, #7a8a9e);
+}
+.rankBronze {
+  background: linear-gradient(135deg, #cd7f32, #b86a1f);
+}
+
+/* Chart section */
+.chartSection {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+.chartTitle {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Modal refinements */
+.modalCloseBtn {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  z-index: 10;
+}
+.modalCloseBtn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+.modalHeader {
+  padding-right: 40px;
+}
+.modalHeaderTop {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+.modalDetailRow {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-primary);
+}
+.footerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* References */
+.referencesSection {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.refStatusDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.refGreen { background: #22c55e; }
+.refYellow { background: #f59e0b; }
+.refRed { background: #ef4444; }
+
+/* Mini chart bars */
+.miniBar {
+  width: 24px;
+  background: linear-gradient(to top, var(--color-accent), var(--color-accent-hover));
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  min-height: 4px;
+}
+
+/* Bundle dropdown */
+.bundleDropdown {
+  padding: 4px 8px;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-family: inherit;
+}
+
 /* ===== References Tab ===== */
 
 /* Traffic light dots */
@@ -678,25 +942,31 @@
 .refDotRed { background: #ef4444; }
 .refDotGray { background: #64748b; }
 
-/* Stat cards */
-.statCard {
+/* Stat cards grid */
+.refStatCards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.refStatCard {
   background: var(--surface-secondary, var(--bg-secondary));
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-lg);
   padding: var(--spacing-md);
   cursor: default;
 }
-.statValue {
+.refStatValue {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-primary);
 }
-.statLabel {
+.refStatLabel {
   font-size: 0.75rem;
   color: var(--text-dim);
   margin-top: 2px;
 }
-.statSub {
+.refStatSub {
   font-size: 0.65rem;
   color: var(--text-muted);
 }
@@ -749,6 +1019,11 @@
   border-color: var(--color-accent);
   color: #fff;
   font-weight: 600;
+}
+.refCount {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 0.75rem;
 }
 
 /* Table */

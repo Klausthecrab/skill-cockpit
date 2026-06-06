@@ -12,6 +12,8 @@ skills_visualizer_bp = Blueprint('skills_visualizer', __name__)
 HOME = os.path.expanduser('~')
 CLAUDE_SKILLS_DIR = os.path.join(HOME, '.claude', 'skills')
 CLAUDE_PLUGINS_DIR = os.path.join(HOME, '.claude', 'plugins', 'marketplaces')
+HERMES_SKILLS_DIR = os.path.join(HOME, '.hermes', 'skills')
+HERMES_STATE_DB = os.path.join(HOME, '.hermes', 'state.db')
 PERSONAS_DIR = None
 DATA_DIR = None
 RATINGS_FILE = os.path.join(
@@ -718,6 +720,141 @@ def _is_installed_skill(entry, skill_dir):
     return False
 
 
+def _scan_hermes_skills():
+    """Scan ~/.hermes/skills/ for Hermes Agent skills with rank metadata."""
+    skills = []
+    if not os.path.isdir(HERMES_SKILLS_DIR):
+        return skills
+
+    # Try to load load-counts from Hermes state.db (skill load events)
+    load_counts = {}
+    if os.path.isfile(HERMES_STATE_DB):
+        try:
+            import sqlite3
+            conn = sqlite3.connect(HERMES_STATE_DB)
+            cur = conn.cursor()
+            # Look for skill_load events in tool_call_log or session data
+            # Use a broad search across the DB
+            tables = cur.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+            for tbl in tables:
+                tname = tbl[0]
+                try:
+                    cols = [c[1] for c in cur.execute(f"PRAGMA table_info({tname})").fetchall()]
+                    if 'tool_name' in cols and 'created_at' in cols:
+                        rows = cur.execute(f"SELECT tool_name, COUNT(*) as cnt FROM {tname} WHERE tool_name LIKE '%skill_view%' OR tool_name LIKE '%skills_list%' GROUP BY tool_name").fetchall()
+                        for r in rows:
+                            skill_id = r[0].replace('skill_view:', '').replace('skills_list:', '')
+                            if skill_id:
+                                load_counts[skill_id] = load_counts.get(skill_id, 0) + r[1]
+                except Exception:
+                    pass
+            conn.close()
+        except Exception:
+            pass
+
+    ratings = _load_ratings()
+
+    for category in sorted(os.listdir(HERMES_SKILLS_DIR)):
+        cat_path = os.path.join(HERMES_SKILLS_DIR, category)
+        if not os.path.isdir(cat_path):
+            continue
+        for entry in sorted(os.listdir(cat_path)):
+            skill_path = os.path.join(cat_path, entry)
+            skill_file = os.path.join(skill_path, 'SKILL.md')
+            if not os.path.isfile(skill_file):
+                continue
+
+            with open(skill_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            # Parse YAML-like frontmatter
+            frontmatter = {}
+            fm_match = re.match(r'^---\s*\n(.*?)\n---', content, re.DOTALL)
+            if fm_match:
+                import yaml
+                try:
+                    frontmatter = yaml.safe_load(fm_match.group(1)) or {}
+                except Exception:
+                    # Fallback: simple line-by-line parse
+                    for line in fm_match.group(1).strip().split('\n'):
+                        if ':' in line:
+                            key, val = line.split(':', 1)
+                            frontmatter[key.strip()] = val.strip()
+
+            name = frontmatter.get('name', entry)
+            description = frontmatter.get('description', '')
+            version = str(frontmatter.get('version', '')) if frontmatter.get('version') else ''
+
+            # Extract tags from metadata.hermes.tags
+            tags = []
+            metadata = frontmatter.get('metadata', {})
+            if isinstance(metadata, dict):
+                hermes_meta = metadata.get('hermes', {})
+                if isinstance(hermes_meta, dict):
+                    tags = hermes_meta.get('tags', []) or []
+                    if isinstance(tags, str):
+                        tags = [t.strip() for t in tags.strip('[]').split(',') if t.strip()]
+
+            # Count references/
+            ref_dir = os.path.join(skill_path, 'references')
+            ref_count = 0
+            ref_files = []
+            if os.path.isdir(ref_dir):
+                ref_files = [f for f in os.listdir(ref_dir) if f.endswith('.md')]
+                ref_count = len(ref_files)
+
+            # Get file mtime as last_load
+            try:
+                mtime = os.path.getmtime(skill_file)
+                last_load = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
+            except OSError:
+                last_load = ''
+
+            # Derive load count: custom rating field + heuristic
+            stored_ratings = ratings.get(entry, {})
+            load_count = stored_ratings.get('load_count', 0)
+            # Fallback: use reference count as proxy for quality/engagement
+            if load_count == 0:
+                load_count = load_counts.get(entry, 0)
+            if load_count == 0:
+                load_count = ref_count  # heuristic proxy
+
+            # Determine rank
+            has_version = bool(version and version != '0')
+            is_archived = category == '.archive'
+
+            if is_archived:
+                rank = 'archived'
+            elif load_count > 50 or (has_version and ref_count >= 10):
+                rank = 'gold'
+            elif load_count >= 10 or (has_version and ref_count >= 3) or ref_count >= 5:
+                rank = 'silver'
+            else:
+                rank = 'bronze'
+
+            skills.append({
+                'id': entry,
+                'name': name,
+                'description': description,
+                'version': version,
+                'category': category,
+                'source': 'hermes',
+                'source_detail': f'~/.hermes/skills/{category}/{entry}/',
+                'rank': rank,
+                'load_count': load_count,
+                'last_load': last_load,
+                'bundle_count': 1 if category and not category.startswith('.') else 0,
+                'references_count': ref_count,
+                'has_skill_file': True,
+                'tags': tags,
+                'installed': last_load,
+                'secrets': _parse_secrets_from_skill(skill_file),
+                'dataflow': _parse_dataflow_from_skill(skill_file),
+            })
+
+    return skills
+
+
 def _scan_own_skills():
     """Scan ~/.claude/skills/ for custom and installed skills."""
     eigen = []
@@ -945,9 +1082,10 @@ def get_skills():
     installiert_from_lock = _scan_external_skills()
     anthropic = _scan_anthropic_plugins()
     n8n = _scan_n8n_skills()
+    hermes = _scan_hermes_skills()
 
     installiert = installiert_from_own + installiert_from_lock
-    all_skills = eigen + installiert + anthropic + n8n
+    all_skills = eigen + installiert + anthropic + n8n + hermes
 
     # Build reverse mapping: claude_skill_id -> best n8n workflow
     sister_reverse = {}
@@ -974,11 +1112,12 @@ def get_skills():
     return jsonify({
         'skills': all_skills,
         'stats': {
-            'total': len(eigen) + len(installiert) + len(anthropic),
+            'total': len(eigen) + len(installiert) + len(anthropic) + len(hermes),
             'eigen': len(eigen),
             'installiert': len(installiert),
             'anthropic': len(anthropic),
             'n8n': len(n8n),
+            'hermes': len(hermes),
         }
     }), 200
 
