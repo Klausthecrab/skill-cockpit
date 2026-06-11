@@ -4,6 +4,7 @@ Port 9123. Serviert React-Frontend (Vite Build) + API-Endpunkte.
 """
 
 import os
+import sys
 import json
 import sqlite3
 import yaml
@@ -453,4 +454,7 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(host='0.0.0.0', port=9123, debug=False)
+    port = int(os.environ.get('PORT', 9123))
+    if len(sys.argv) > 1:
+        port = int(sys.argv[1])
+    app.run(host='0.0.0.0', port=port, debug=False)
